@@ -6,23 +6,36 @@ namespace Minefield
     {
         public void Subscribe(Field field)
         {
-            field.OnMove += OnMove;
+            field.OnMove += DrawCoord;
+            field.OnReset += DrawEmpty;
         }
 
         public void Unsubscribe(Field field)
         {
-            field.OnMove -= OnMove;
+            field.OnMove -= DrawCoord;
+            field.OnReset -= DrawEmpty;
         }
 
-        private void OnMove(Field sender, MoveArgs e)
+        private void DrawEmpty(Field sender)
         {
-            Console.SetCursorPosition(e.Row, e.Col);
+            for (int row = 0; row < sender.Height; row++)
+            {
+                for (int col = 0; col < sender.Width; col++)
+                {
+                    DrawCoord(sender, new MoveArgs(row, col, Move.Unflag, Field.Hidden));
+                }
+            }
+        }
 
-            switch (e.CoordVal)
+        private void DrawCoord(Field sender, MoveArgs e)
+        {
+            Console.SetCursorPosition(e.Col, e.Row);
+
+            switch (e.Value)
             {
                 case Field.Hidden:
                     Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write(' '); 
+                    Console.Write('?'); 
                     break;
 
                 case Field.Mine:
@@ -32,9 +45,9 @@ namespace Minefield
 
                 default:
                     Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write(e.CoordVal); 
+                    Console.Write(e.Value); 
                     break;
-            };  
+            };
         }
     }
 }

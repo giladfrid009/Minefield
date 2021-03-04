@@ -10,14 +10,14 @@ namespace Minefield
         public Move Move { get; }
         public int Row { get; }
         public int Col { get; }
-        public int CoordVal { get; }
+        public int Value { get; }
 
         public MoveArgs(int row, int col, Move move, int val)
         {
             Row = row;
             Col = col;
             Move = move;
-            CoordVal = val;
+            Value = val;
         }
     }
 

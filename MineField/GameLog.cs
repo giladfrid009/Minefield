@@ -11,27 +11,27 @@ namespace Minefield
 
         public GameLog(Field field)
         {
-            field.OnMove += OnMove;
-            field.OnEnd += OnEnd;
-            field.OnReset += OnReset;
+            field.OnMove += AddMove;
+            field.OnEnd += SetResult;
+            field.OnReset += Unsubscribe;
         }
 
-        private void OnMove(Field sender, MoveArgs e)
+        private void AddMove(Field sender, MoveArgs e)
         {
             Moves.Add((new Point(e.Row, e.Col), e.Move));
         }     
 
-        private void OnReset(Field sender)
+        private void Unsubscribe(Field sender)
         {
-            sender.OnMove -= OnMove;
-            sender.OnEnd -= OnEnd;
-            sender.OnReset -= OnReset;
+            sender.OnMove -= AddMove;
+            sender.OnEnd -= SetResult;
+            sender.OnReset -= Unsubscribe;
         }
 
-        private void OnEnd(Field sender, ResultArgs e)
+        private void SetResult(Field sender, ResultArgs e)
         {
             GameResult = e.Result;
-            OnReset(sender);
+            Unsubscribe(sender);
         }
     }
 }

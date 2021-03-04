@@ -144,7 +144,7 @@ namespace Minefield
             }
         }
 
-        public void Generate(double minePrecent, int originRow, int originCol, int originSize = 3, int? seed = null)
+        public void Generate(double minePrecent, int originRow, int originCol, int originSize = 1, int? seed = null)
         {
             TestCoord(originRow, originCol, nameof(Generate));
 
@@ -196,7 +196,7 @@ namespace Minefield
                 {
                     if (col < 0 || col > Width - 1) continue;
 
-                    UnsField[row, col] = 0;
+                    SolField[row, col] = 0;
                 }
             }
         }
@@ -207,7 +207,7 @@ namespace Minefield
             {
                 for (int col = 0; col < Width; col++)
                 {
-                    if (SolField[row, col] != Hidden) continue;
+                    if (SolField[row, col] == Mine) continue;
 
                     SolField[row, col] = 0;
 
@@ -231,7 +231,7 @@ namespace Minefield
 
                     switch (val)
                     {
-                        case Hidden: str.Append(' '); break;
+                        case Hidden: str.Append('?'); break;
                         case Mine:   str.Append('@'); break;
                         default:     str.Append(val); break;
                     };

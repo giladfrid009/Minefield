@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace Minefield
+﻿namespace Minefield
 {
-
     public class GameData
     {
         public int TotalMines { get; internal set; }
@@ -14,9 +11,9 @@ namespace Minefield
 
         internal GameData(Field field)
         {
-            field.OnMove += OnMove;
-            field.OnEnd += OnEnd;
-            field.OnReset += OnReset;
+            field.OnMove += AddEntry;
+            field.OnEnd += SetResult;
+            field.OnReset += ResetData;
         }
 
         public bool HasWon()
@@ -24,7 +21,7 @@ namespace Minefield
             return Result == GameResult.Won || (Result != GameResult.Lost && NumFlagged == TotalMines && NumHidden == 0);
         }
 
-        private void OnMove(Field sender, MoveArgs e)
+        private void AddEntry(Field sender, MoveArgs e)
         {
             switch (e.Move)
             {
@@ -45,7 +42,7 @@ namespace Minefield
             }
         }
 
-        private void OnReset(Field sender)
+        private void ResetData(Field sender)
         {
             NumHidden = sender.Width * sender.Height;
             Result = GameResult.None;
@@ -54,7 +51,7 @@ namespace Minefield
             NumFlagged = 0;
         }
 
-        private void OnEnd(Field sender, ResultArgs e)
+        private void SetResult(Field sender, ResultArgs e)
         {
             Result = e.Result;
         }
