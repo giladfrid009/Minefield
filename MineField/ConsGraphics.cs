@@ -6,12 +6,16 @@ namespace Minefield
     {
         public void Subscribe(Field field)
         {
+            Console.CursorVisible = false;
+
             field.OnMove += DrawCoord;
             field.OnReset += DrawEmpty;
         }
 
         public void Unsubscribe(Field field)
         {
+            Console.CursorVisible = true;
+
             field.OnMove -= DrawCoord;
             field.OnReset -= DrawEmpty;
         }

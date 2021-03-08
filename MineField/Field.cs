@@ -17,18 +17,18 @@ namespace Minefield
         public event EventHandler<Field>? OnReset;
 
         public GameData Game { get; }
-        public int Width { get; }
         public int Height { get; }
+        public int Width { get; }
 
         public int this[int row, int col] => UnsField[row, col];
 
         private readonly int[,] SolField;
         private readonly int[,] UnsField;
         
-        public Field(int width, int height)
+        public Field(int height, int width)
         {
-            Width = width;
             Height = height;
+            Width = width;
 
             SolField = new int[height, width];
             UnsField = new int[height, width];
@@ -42,7 +42,7 @@ namespace Minefield
             {
                 for (int col = 0; col < Width; col++)
                 {
-                    SolField[row, col] = 0;
+                    SolField[row, col] = Hidden;
                     UnsField[row, col] = Hidden;
                 }
             }
@@ -63,13 +63,13 @@ namespace Minefield
             }
         }
 
-        public bool Flag(int row, int col)
+        public void Flag(int row, int col)
         {
             TestCoord(row, col, nameof(Flag));
 
-            if (Game.NumFlagged >= Game.TotalMines) return false;
+            if (Game.NumFlags >= Game.TotalMines) return;
 
-            if (UnsField[row, col] != Hidden) return false;
+            if (UnsField[row, col] != Hidden) return;
 
             UnsField[row, col] = Mine;
 
@@ -79,28 +79,28 @@ namespace Minefield
             {
                 OnEnd?.Invoke(this, new ResultArgs(GameResult.Won));
             }
-
-            return true;
         }
 
-        public bool Unflag(int row, int col)
+        public void Unflag(int row, int col)
         {
             TestCoord(row, col, nameof(Unflag));
 
-            if (UnsField[row, col] != Mine) return false;
+            if (Game.HasWon()) return;
+
+            if (UnsField[row, col] != Mine) return;
 
             UnsField[row, col] = Hidden;
 
             OnMove?.Invoke(this, new MoveArgs(row, col, Move.Unflag, Hidden));
 
-            return true;
+            return;
         }
 
-        public bool Reveal(int row, int col)
+        public void Reveal(int row, int col)
         {
             TestCoord(row, col, nameof(Reveal));
 
-            if (UnsField[row, col] != Hidden) return false;
+            if (UnsField[row, col] != Hidden) return;
 
             UnsField[row, col] = SolField[row, col];
 
@@ -108,7 +108,8 @@ namespace Minefield
 
             if (UnsField[row, col] == Mine)
             {
-                OnEnd?.Invoke(this, new ResultArgs(GameResult.Lost));
+                OnEnd?.Invoke(this, new ResultArgs(GameResult.Lost));          
+                return;
             }
 
             if (UnsField[row, col] == 0)
@@ -123,8 +124,6 @@ namespace Minefield
             {
                 OnEnd?.Invoke(this, new ResultArgs(GameResult.Won));
             }
-
-            return true;
         }
        
         private IEnumerable<(int Row, int Col)> GetAdj(int row, int col)
@@ -152,33 +151,13 @@ namespace Minefield
 
             Reset();
 
-            GenMines(minePrecent, rnd);
-
             GenOrigin(originRow, originCol, originSize);
+
+            GenMines(minePrecent, rnd);
 
             GenVals();
 
             Reveal(originRow, originCol);
-        }
-
-        private void GenMines(double precent, Random rnd)
-        {
-            if (precent < 0 || precent > 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(precent));
-            }
-
-            for (int row = 0; row < Height; row++)
-            {
-                for (int col = 0; col < Width; col++)
-                {
-                    if (rnd.NextDouble() <= precent)
-                    {
-                        SolField[row, col] = Mine;
-                        Game.TotalMines++;
-                    }
-                }
-            }
         }
 
         private void GenOrigin(int oRow, int oCol, int size)
@@ -200,6 +179,29 @@ namespace Minefield
                 }
             }
         }
+
+        private void GenMines(double precent, Random rnd)
+        {
+            if (precent < 0 || precent > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(precent));
+            }
+
+            for (int row = 0; row < Height; row++)
+            {
+                for (int col = 0; col < Width; col++)
+                {
+                    if (SolField[row, col] != Hidden) continue;
+
+                    if (rnd.NextDouble() <= precent)
+                    {
+                        SolField[row, col] = Mine;
+
+                        Game.TotalMines++;
+                    }
+                }
+            }
+        }       
 
         private void GenVals()
         {

@@ -6,37 +6,37 @@
 
         public GameResult Result { get; private set; }
         public int NumHidden { get; private set; }
-        public int NumRevealed { get; private set; }
-        public int NumFlagged { get; private set; }    
+        public int NumOpen { get; private set; }
+        public int NumFlags { get; private set; }    
 
         internal GameData(Field field)
         {
-            field.OnMove += AddEntry;
+            field.OnMove += Update;
             field.OnEnd += SetResult;
             field.OnReset += ResetData;
         }
 
-        public bool HasWon()
+        internal bool HasWon()
         {
-            return Result == GameResult.Won || (Result != GameResult.Lost && NumFlagged == TotalMines && NumHidden == 0);
+            return Result == GameResult.Won || (Result != GameResult.Lost && NumFlags == TotalMines && NumHidden == 0);
         }
 
-        private void AddEntry(Field sender, MoveArgs e)
+        private void Update(Field sender, MoveArgs e)
         {
             switch (e.Move)
             {
                 case Move.Flag: 
-                    NumFlagged++; 
+                    NumFlags++; 
                     NumHidden--; 
                     break;
                 
                 case Move.Unflag: 
-                    NumFlagged--; 
+                    NumFlags--; 
                     NumHidden++; 
                     break;
                 
                 case Move.Reveal: 
-                    NumRevealed++; 
+                    NumOpen++; 
                     NumHidden--; 
                     break;
             }
@@ -47,8 +47,8 @@
             NumHidden = sender.Width * sender.Height;
             Result = GameResult.None;
             TotalMines = 0;
-            NumRevealed = 0;
-            NumFlagged = 0;
+            NumOpen = 0;
+            NumFlags = 0;
         }
 
         private void SetResult(Field sender, ResultArgs e)
