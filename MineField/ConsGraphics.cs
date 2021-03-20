@@ -1,56 +1,86 @@
 ﻿using System;
+using System.Text;
 
 namespace Minefield
 {
     public class ConsGraphics
     {
-        public void Subscribe(Field field)
+        private readonly string EmptyField;
+
+        public ConsGraphics(Field field)
         {
             Console.CursorVisible = false;
 
             field.OnMove += DrawCoord;
             field.OnReset += DrawEmpty;
+
+            EmptyField = GenEmpty(field);
         }
 
         public void Unsubscribe(Field field)
         {
-            Console.CursorVisible = true;
-
             field.OnMove -= DrawCoord;
             field.OnReset -= DrawEmpty;
         }
 
+        private static string GenEmpty(Field field)
+        {
+            StringBuilder builder = new();
+
+            for (int row = 0; row < field.Height; row++)
+            {
+                for (int col = 0; col < field.Width; col++)
+                {
+                    builder.Append(GetChar(Field.Hidden));
+                }
+
+                if(row < field.Height - 1) builder.Append('\n');
+            }
+
+            return builder.ToString();
+        }
+
         private void DrawEmpty(Field sender)
         {
-            for (int row = 0; row < sender.Height; row++)
-            {
-                for (int col = 0; col < sender.Width; col++)
-                {
-                    DrawCoord(sender, new MoveArgs(row, col, Move.Unflag, Field.Hidden));
-                }
-            }
+            Console.SetCursorPosition(0, 0);
+
+            MoveArgs e = new(0, 0, Move.Unflag, Field.Hidden);
+
+            Console.ForegroundColor = GetColor(e);
+
+            Console.Write(EmptyField);
         }
 
         private void DrawCoord(Field sender, MoveArgs e)
         {
             Console.SetCursorPosition(e.Col, e.Row);
 
-            switch (e.Value)
+            Console.ForegroundColor = GetColor(e);
+
+            Console.Write(GetChar(e.Value));
+        }
+
+        private static ConsoleColor GetColor(MoveArgs e)
+        {
+            return e.Value switch
             {
-                case Field.Hidden:
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write('?'); 
-                    break;
+                Field.Mine when e.Move == Move.Reveal => ConsoleColor.Yellow,
 
-                case Field.Mine:
-                    Console.ForegroundColor = e.Move == Move.Reveal ? ConsoleColor.Yellow : ConsoleColor.Red;
-                    Console.Write('@'); 
-                    break;
+                Field.Mine when e.Move != Move.Reveal => ConsoleColor.Red,
 
-                default:
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write(e.Value); 
-                    break;
+                _ => ConsoleColor.Gray
+            };
+        }
+
+        private static char GetChar(int value)
+        {
+            return value switch
+            {
+                Field.Hidden => '?',
+
+                Field.Mine => '@',
+
+                _ => (char)(value + '0'),
             };
         }
     }

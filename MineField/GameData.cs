@@ -26,11 +26,11 @@
             switch (e.Move)
             {
                 case Move.Flag: 
-                    NumFlags++; 
-                    NumHidden--; 
+                    NumFlags++;
+                    NumHidden--;
                     break;
-                
-                case Move.Unflag: 
+
+                case Move.Unflag:
                     NumFlags--; 
                     NumHidden++; 
                     break;

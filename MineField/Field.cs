@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Minefield
 {
@@ -67,8 +67,6 @@ namespace Minefield
         {
             TestCoord(row, col, nameof(Flag));
 
-            if (Game.NumFlags >= Game.TotalMines) return;
-
             if (UnsField[row, col] != Hidden) return;
 
             UnsField[row, col] = Mine;
@@ -84,8 +82,6 @@ namespace Minefield
         public void Unflag(int row, int col)
         {
             TestCoord(row, col, nameof(Unflag));
-
-            if (Game.HasWon()) return;
 
             if (UnsField[row, col] != Mine) return;
 
@@ -223,7 +219,7 @@ namespace Minefield
 
         public override string ToString()
         {
-            StringBuilder str = new StringBuilder(Width * Height + 2 * Height);
+            StringBuilder builder = new StringBuilder((Width + 1) * Height);
 
             for (int row = 0; row < Height; row++)
             {
@@ -233,16 +229,16 @@ namespace Minefield
 
                     switch (val)
                     {
-                        case Hidden: str.Append('?'); break;
-                        case Mine:   str.Append('@'); break;
-                        default:     str.Append(val); break;
+                        case Hidden: builder.Append('?'); break;
+                        case Mine:   builder.Append('@'); break;
+                        default:     builder.Append(val); break;
                     };
                 }
 
-                str.Append('\n');
+                if (row < Height - 1) builder.Append('\n');
             }
 
-            return str.ToString();
+            return builder.ToString();
         }
     }
 }

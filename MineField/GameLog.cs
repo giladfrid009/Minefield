@@ -19,7 +19,7 @@ namespace Minefield
         private void AddMove(Field sender, MoveArgs e)
         {
             Moves.Add((new Point(e.Row, e.Col), e.Move));
-        }     
+        }
 
         private void Unsubscribe(Field sender)
         {
